@@ -12,7 +12,10 @@ load_dotenv()
 load_dotenv()
 app = Flask(__name__)
 print(os.environ.get("DATABASE_URL"))
-conn = redis.from_url(os.environ.get("DATABASE_URL"))
+#conn = redis.from_url(os.environ.get("DATABASE_URL"))
+#conn =redis.Redis()
+redis_host = os.getenv('REDIS_HOST', '127.0.0.1')
+conn = redis.Redis(host=redis_host, port=6379)
 
 @app.route('/cart', methods=['POST'])
 def add_to_cart():
