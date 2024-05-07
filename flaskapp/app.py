@@ -7,6 +7,15 @@ import os
 from dotenv import load_dotenv
 
 
+"""
+- Falta .env.example
+- Comenta las funciones
+- Documentación API
+"""
+
+
+# -----------------------------------------------------------------------------
+
 load_dotenv()
 
 load_dotenv()
@@ -16,6 +25,9 @@ print(os.environ.get("DATABASE_URL"))
 #conn =redis.Redis()
 redis_host = os.getenv('REDIS_HOST', '127.0.0.1')
 conn = redis.Redis(host=redis_host, port=6379)
+
+# -----------------------------------------------------------------------------
+
 
 @app.route('/cart', methods=['POST'])
 def add_to_cart():
@@ -32,6 +44,7 @@ def get_cart():
     user_id = request.json["user_id"]
     cart = carrito.fetch_cart(conn, user_id)
     return jsonify(str(cart)), 200
+
 
 @app.route('/cart', methods=['DELETE'])
 def del_cart():

@@ -1,28 +1,34 @@
 import redis
 import time
 
-QUIT =False
-LIMIT =2
+QUIT = False
+LIMIT = 2
+
 
 def to_str(x):
     return x.decode() if isinstance(x, bytes) else x
 
+
 def add_to_cart(conn, user, item, count):
     if count <= 0:
         conn.zadd('recent:',{user: time.time()})
-        conn.hrem('cart:' + user, item)          #A
+        conn.hrem('cart:' + user, item)
     else:
         conn.zadd('recent:', {user: time.time()})
         conn.hset('cart:' + user, item, count)
 
+
 def fetch_cart(conn, user):
     return conn.hgetall('cart:'+user)
+
 
 def fetch_recent(conn):
     return conn.zrange('recent:', 0, -1, withscores=True)
 
+
 def delete_cart(conn,user):
     conn.delete('cart:'+user)
+
 
 def clean_full_sessions(conn):
     while not QUIT:
@@ -41,6 +47,7 @@ def clean_full_sessions(conn):
 
         conn.delete(*session_keys)
         conn.zrem('recent:', *sessions)
+
 
 if __name__ == '__main__':
     import threading
