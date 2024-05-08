@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, abort
 import threading
 import carrito as carrito
 import redis
@@ -6,12 +6,6 @@ import carrito
 import os
 from dotenv import load_dotenv
 
-
-"""
-- Falta .env.example
-- Comenta las funciones
-- Documentación API
-"""
 
 
 # -----------------------------------------------------------------------------
@@ -28,32 +22,50 @@ conn = redis.Redis(host=redis_host, port=6379)
 
 # -----------------------------------------------------------------------------
 
-
+##Metodo para cambiar el carrito de un usuario, recibe el id de usuario, el id de producto y la cantidad de este
+##Si se recibe 0 o negativo commo cantidad se elimina el producto del carrito
 @app.route('/cart', methods=['POST'])
 def add_to_cart():
-    item_id = request.json['item_id']
-    quantity = request.json['quantity']
-    user_id = request.json.get('user_id')  
+    item_id = request.json.get('item_id')
+    quantity = request.json.get('quantity')
+    user_id = request.json.get('user_id') 
+     # Validate the received data
+    if item_id is None or quantity is None or user_id is None:
+        return jsonify({'error': 'Missing data'}), 400
 
-    carrito.add_to_cart(conn, user_id,item_id,quantity)
-    return jsonify({"message": f"Cart:{user_id} changed. item:{item_id} = {quantity}"}), 200
+    try:
+        carrito.add_to_cart(conn, user_id,item_id,quantity)
+        return jsonify({"message": f"Cart:{user_id} changed. item:{item_id} = {quantity}"}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
-
+##Devuelve el carrito, recibe el id de usuario
 @app.route('/cart', methods=['GET'])
 def get_cart():
     user_id = request.json["user_id"]
-    cart = carrito.fetch_cart(conn, user_id)
-    return jsonify(str(cart)), 200
+    if user_id is None:
+        return jsonify({'error': 'Missing data'}), 400
+    try:
+        cart = carrito.fetch_cart(conn, user_id)
+        return jsonify(str(cart)), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
-
+##Borra el carrito, recibe el id de usuario
 @app.route('/cart', methods=['DELETE'])
 def del_cart():
     user_id = request.json["user_id"]
-    carrito.delete_cart(conn,user_id)
-    return jsonify({"message": f"Cart {user_id} deleted"})
+    if user_id is None:
+        return jsonify({'error': 'Missing data'}), 400
+    try:
+        carrito.delete_cart(conn,user_id)
+        return jsonify({"message": f"Cart {user_id} deleted"})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 if __name__ == '__main__':
+    ##Función limpiadora de carritos, borra los carritos carritos mas viejos sin utilizar pasados los 10000
     thread = threading.Thread(target=carrito.clean_full_sessions, args=(conn,), daemon=True)
     thread.start()
-    app.run(debug=False)
+    app.run(debug=os.environ.get("DEBUG"), port=os.getenv('FLASK_PORT'), host=os.getenv('HOST'))

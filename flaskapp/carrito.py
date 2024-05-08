@@ -2,13 +2,13 @@ import redis
 import time
 
 QUIT = False
-LIMIT = 2
+LIMIT = 10000 ##Numero máximo de carritos
 
-
+##Convierte a str
 def to_str(x):
     return x.decode() if isinstance(x, bytes) else x
 
-
+##Modificar carrito
 def add_to_cart(conn, user, item, count):
     if count <= 0:
         conn.zadd('recent:',{user: time.time()})
@@ -17,19 +17,20 @@ def add_to_cart(conn, user, item, count):
         conn.zadd('recent:', {user: time.time()})
         conn.hset('cart:' + user, item, count)
 
-
+##Regresa carrito
 def fetch_cart(conn, user):
     return conn.hgetall('cart:'+user)
 
-
+#Regresa la lista de todos los carritos guardados
 def fetch_recent(conn):
     return conn.zrange('recent:', 0, -1, withscores=True)
 
-
+##Borra carrito
 def delete_cart(conn,user):
     conn.delete('cart:'+user)
+    conn.zrem('recent:',user)
 
-
+##Limpia carritos más antiguos sin utilizar
 def clean_full_sessions(conn):
     while not QUIT:
         size = conn.zcard('recent:')
