@@ -41,7 +41,7 @@ def add_to_cart():
         return jsonify({'error': str(e)}), 500
 
 ##Devuelve el carrito, recibe el id de usuario
-@app.route('/cart', methods=['GET'])
+@app.route('/get-cart', methods=['POST'])
 def get_cart():
     user_id = request.json["user_id"]
     if user_id is None:
