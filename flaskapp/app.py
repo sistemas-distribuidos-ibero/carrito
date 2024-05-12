@@ -5,14 +5,14 @@ import redis
 import carrito
 import os
 from dotenv import load_dotenv
-
+from flask_cors import CORS
 
 
 # -----------------------------------------------------------------------------
 
-
 load_dotenv()
 app = Flask(__name__)
+CORS(app)
 print(os.environ.get("DATABASE_URL"))
 conn = redis.from_url(os.environ.get("DATABASE_URL"))
 #conn =redis.Redis()
