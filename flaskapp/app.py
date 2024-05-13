@@ -35,10 +35,10 @@ def add_to_cart():
         return jsonify({'error': 'Missing data'}), 400
 
     try:
-        carrito.add_to_cart(conn, user_id,item_id,quantity)
-        return jsonify({"message": f"Cart:{user_id} changed. item:{item_id} = {quantity}"}), 200
+        carrito.add_to_cart(conn, user_id, item_id, quantity)
+        return jsonify({"message": f"Cart:{str(user_id)} changed successfully. item:{item_id} = {str(quantity)}"}), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': str(e), 'cart': "no cart"}), 500
 
 ##Devuelve el carrito, recibe el id de usuario
 @app.route('/get-cart', methods=['POST'])
@@ -51,7 +51,7 @@ def get_cart():
         decoded_cart = {key.decode('utf-8'): value.decode('utf-8') for key, value in cart.items()}
         return jsonify(decoded_cart), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': str(e), 'cart': "no cart"}), 500
 
 ##Borra el carrito, recibe el id de usuario
 @app.route('/cart', methods=['DELETE'])

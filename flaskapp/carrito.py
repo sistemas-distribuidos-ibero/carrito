@@ -11,15 +11,15 @@ def to_str(x):
 ##Modificar carrito
 def add_to_cart(conn, user, item, count):
     if count <= 0:
-        conn.zadd('recent:',{user: time.time()})
-        conn.hrem('cart:' + user, item)
+        conn.zadd('recent:', {user: time.time()})
+        conn.hrem('cart:' + str(user), item)
     else:
         conn.zadd('recent:', {user: time.time()})
-        conn.hset('cart:' + user, item, count)
+        conn.hset('cart:' + str(user), item, str(count))
 
 ##Regresa carrito
 def fetch_cart(conn, user):
-    return conn.hgetall('cart:'+user)
+    return conn.hgetall('cart:'+ str(user))
 
 #Regresa la lista de todos los carritos guardados
 def fetch_recent(conn):
@@ -27,8 +27,8 @@ def fetch_recent(conn):
 
 ##Borra carrito
 def delete_cart(conn,user):
-    conn.delete('cart:'+user)
-    conn.zrem('recent:',user)
+    conn.delete('cart:'+str(user))
+    conn.zrem('recent:',str(user))
 
 ##Limpia carritos más antiguos sin utilizar
 def clean_full_sessions(conn):
