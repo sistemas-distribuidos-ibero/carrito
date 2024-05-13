@@ -12,7 +12,7 @@ def to_str(x):
 def add_to_cart(conn, user, item, count):
     if count <= 0:
         conn.zadd('recent:', {user: time.time()})
-        conn.hrem('cart:' + str(user), item)
+        conn.hdel('cart:' + str(user), item)
     else:
         conn.zadd('recent:', {user: time.time()})
         conn.hset('cart:' + str(user), item, str(count))
