@@ -48,7 +48,8 @@ def get_cart():
         return jsonify({'error': 'Missing data'}), 400
     try:
         cart = carrito.fetch_cart(conn, user_id)
-        return jsonify(str(cart)), 200
+        decoded_cart = {key.decode('utf-8'): value.decode('utf-8') for key, value in cart.items()}
+        return jsonify(decoded_cart), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
