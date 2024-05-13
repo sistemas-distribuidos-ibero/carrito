@@ -54,9 +54,8 @@ def get_cart():
         return jsonify({'error': str(e), 'cart': "no cart"}), 500
 
 ##Borra el carrito, recibe el id de usuario
-@app.route('/cart', methods=['DELETE'])
-def del_cart():
-    user_id = request.json["user_id"]
+@app.route('/cart/<int:user_id>', methods=['DELETE'])
+def del_cart(user_id):
     if user_id is None:
         return jsonify({'error': 'Missing data'}), 400
     try:
